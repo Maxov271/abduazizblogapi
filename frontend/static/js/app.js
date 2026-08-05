@@ -1,9 +1,7 @@
 /* Hanzo-Dev tipidagi SPA frontend. Hash-router: #/about #/resume
    #/portfolio #/portfolio/<slug> #/thread #/thread/<slug> */
 
-const contentEl = document.getElementById("content-panel-body");
-const navTabsEl = document.getElementById("nav-tabs");
-const sidebarEl = document.getElementById("sidebar-root");
+let contentEl, navTabsEl, sidebarEl;
 
 function esc(str) {
   const d = document.createElement("div");
@@ -410,9 +408,44 @@ function router() {
   return routeAbout();
 }
 
-window.addEventListener("hashchange", router);
-window.addEventListener("DOMContentLoaded", () => {
+let publicHashListenerAttached = false;
+
+/* Bosh sahifa uchun HTML skelet + kerakli render funksiyalarini ishga tushiradi.
+   router.js shu funksiyani chaqiradi. */
+function mountPublicApp() {
+  const root = document.getElementById("app-root");
+  root.innerHTML = `
+    <div class="page-wrap">
+      <aside class="sidebar" id="sidebar-root">
+        <p class="loading-text">Yuklanmoqda...</p>
+      </aside>
+      <main class="content-panel">
+        <nav class="nav-tabs" id="nav-tabs">
+          <a href="#/about" data-tab="about">About</a>
+          <a href="#/resume" data-tab="resume">Resume</a>
+          <a href="#/portfolio" data-tab="portfolio">Portfolio</a>
+          <a href="#/thread" data-tab="thread">Thread</a>
+        </nav>
+        <div id="content-panel-body">
+          <p class="loading-text">Yuklanmoqda...</p>
+        </div>
+      </main>
+    </div>
+  `;
+  contentEl = document.getElementById("content-panel-body");
+  navTabsEl = document.getElementById("nav-tabs");
+  sidebarEl = document.getElementById("sidebar-root");
+
   applySiteSettings();
   renderSidebar();
   router();
-});
+
+  if (!publicHashListenerAttached) {
+    window.addEventListener("hashchange", () => {
+      if (window.__activeApp === "public") router();
+    });
+    publicHashListenerAttached = true;
+  }
+}
+
+window.PublicApp = { mount: mountPublicApp };

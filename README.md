@@ -111,3 +111,53 @@ CORS_ALLOW_ALL_ORIGINS=False
 7. Portfolio kategoriyalari va loyihalar
 8. Thread postlari
 9. Izohlar — kelganlarini tasdiqlang, shundagina saytda chiqadi
+
+## Admin panel (API-based, alohida domenlar uchun)
+
+Bu loyihada **ikki xil admin bor**:
+
+1. **Django o'zining ichki admin paneli** — `https://devopsurol.alwaysdata.net/admin/`
+   (yoki backend joylashgan domen). Bu sessiya/cookie asosida ishlaydi, backend
+   bilan bir xil domenda turadi, faqat zaxira/texnik vosita sifatida qoladi.
+
+2. **Sizning sayt dizayningizga mos SPA admin panel** — frontend qaysi domenda
+   bo'lsa (`https://umarovgroup.uz`), o'sha domenda **`/admin`** manzilida ochiladi:
+   `https://umarovgroup.uz/admin`. Bu **token-based** autentifikatsiya bilan ishlaydi
+   (`Authorization: Token ...` header), shuning uchun frontend va backend turli
+   domenlarda bo'lsa ham **xavfsiz** — cookie/CSRF muammosi umuman yo'q.
+
+### Ishlash tartibi
+
+- `POST /api/auth/login/` — login+parol yuborilsa, **faqat `is_staff=True`**
+  foydalanuvchiga token qaytaradi (`python manage.py createsuperuser` bilan
+  yaratilgan hisob ishlaydi)
+- Token brauzer `localStorage`da saqlanadi, har bir keyingi so'rovda header orqali yuboriladi
+- Barcha yozish (`POST/PATCH/DELETE`) endpointlari `/api/admin/...` da,
+  `IsStaffUser` permission bilan himoyalangan — token bo'lmasa yoki `is_staff=False`
+  bo'lsa 401/403 qaytadi
+- O'qish uchun ochiq API (`/api/site-settings/`, `/api/portfolio/` va h.k.) — o'zgarishsiz
+
+### Netlify'ga joylashda muhim
+
+`frontend/_redirects` fayli bor — bu Netlify'ga "qaysi yo'l kelsa ham `index.html`ni
+qaytar" deb aytadi. Shu fayl bo'lmasa, `umarovgroup.uz/admin`ga to'g'ridan-to'g'ri
+kirganda 404 chiqadi (chunki bu haqiqiy fayl emas, JS orqali ishlaydigan yo'l).
+`frontend/` papkasini Netlify'ga yuklaganda `_redirects` ham albatta ko'chishi kerak.
+
+### CORS sozlash
+
+`.env`da (backend tomonda):
+```
+CORS_ALLOWED_ORIGINS=https://umarovgroup.uz,https://www.umarovgroup.uz
+CORS_ALLOW_ALL_ORIGINS=False
+```
+Domen aktivlashgach shu qatorni to'ldiring — hozircha Netlify test-manzilingizni
+(`https://xxxx.netlify.app`) ham shu ro'yxatga qo'shib turing.
+
+### API manzilini frontend'da sozlash
+
+`frontend/static/js/api.js`:
+```js
+const API_BASE = "https://devopsurol.alwaysdata.net/api";
+```
+(hozir sizda shu manzilga ulangan bo'lsa, o'zgartirish shart emas)
