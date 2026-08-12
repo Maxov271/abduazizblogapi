@@ -7,7 +7,9 @@ load_dotenv(BASE_DIR / ".env")
 
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "dev-secret-key-change-me")
 DEBUG = os.getenv("DJANGO_DEBUG", "True") == "True"
-ALLOWED_HOSTS = [h.strip() for h in os.getenv("DJANGO_ALLOWED_HOSTS", "hanzodev.uz,www.hanzodev.uz,127.0.0.1,localhost").split(",") if h.strip()]
+ALLOWED_HOSTS = ['localhost', '127.0.0.1','api.umarovgroup.uz']
+
+
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -101,3 +103,8 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.AllowAny"],
     "DEFAULT_PAGINATION_CLASS": None,
 }
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://api.umarovgroup.uz',
+    'https://umarovgroup.uz',
+]
