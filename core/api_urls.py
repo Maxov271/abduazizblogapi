@@ -17,4 +17,9 @@ urlpatterns = [
     path("thread/<slug:slug>/comments/", v.blog_comments_view, name="api_thread_comments"),
     path("thread/<slug:slug>/comments/create/", v.blog_comment_create_view, name="api_thread_comment_create"),
     path("contact/", v.contact_create_view, name="api_contact"),
+    path("team/", v.TeamMemberListView.as_view(), name="api_team"),
+    path("student-categories/", v.StudentCategoryListView.as_view(), name="api_student_categories"),
+    path("students/", v.StudentListView.as_view(), name="api_students"),
+    path("stats/", v.site_stats_view, name="api_stats"),
+    path("stats/track-visit/", v.track_visit_view, name="api_track_visit"),
 ]

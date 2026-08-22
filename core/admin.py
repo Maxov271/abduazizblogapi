@@ -2,7 +2,7 @@ from django.contrib import admin
 from .models import (
     SiteSettings, Profile, SocialLink, Service, InsideWorldCard, InsideWorldItem,
     SkillGroup, JourneyEntry, PortfolioCategory, Project, ProjectGalleryImage, Tag,
-    BlogPost, Comment, ContactMessage,
+    BlogPost, Comment, ContactMessage, TeamMember, StudentCategory, Student, SiteStats,
 )
 
 
@@ -89,11 +89,42 @@ class TagAdmin(admin.ModelAdmin):
 
 @admin.register(BlogPost)
 class BlogPostAdmin(admin.ModelAdmin):
-    list_display = ("title", "is_published", "published_at", "read_minutes")
+    list_display = ("title", "is_published", "published_at", "read_minutes", "display_views")
     list_filter = ("is_published", "tags")
     prepopulated_fields = {"slug": ("title",)}
     filter_horizontal = ("tags",)
     date_hierarchy = "published_at"
+    readonly_fields = ("view_count",)
+
+
+@admin.register(TeamMember)
+class TeamMemberAdmin(admin.ModelAdmin):
+    list_display = ("name", "role", "order")
+    list_editable = ("order",)
+
+
+@admin.register(StudentCategory)
+class StudentCategoryAdmin(admin.ModelAdmin):
+    list_display = ("name", "slug", "order")
+    prepopulated_fields = {"slug": ("name",)}
+
+
+@admin.register(Student)
+class StudentAdmin(admin.ModelAdmin):
+    list_display = ("name", "category", "role", "project_count", "order")
+    list_editable = ("order",)
+    list_filter = ("category",)
+
+
+@admin.register(SiteStats)
+class SiteStatsAdmin(admin.ModelAdmin):
+    readonly_fields = ("total_visits",)
+
+    def has_add_permission(self, request):
+        return not SiteStats.objects.exists()
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 
 @admin.register(Comment)

@@ -4,7 +4,7 @@ from rest_framework.authentication import TokenAuthentication
 from .models import (
     SiteSettings, Profile, SocialLink, Service, InsideWorldCard, InsideWorldItem,
     SkillGroup, JourneyEntry, PortfolioCategory, Project, ProjectGalleryImage, Tag,
-    BlogPost, Comment, ContactMessage,
+    BlogPost, Comment, ContactMessage, TeamMember, StudentCategory, Student, SiteStats,
 )
 from .admin_serializers import (
     SiteSettingsAdminSerializer, ProfileAdminSerializer, SocialLinkAdminSerializer,
@@ -12,6 +12,8 @@ from .admin_serializers import (
     SkillGroupAdminSerializer, JourneyEntryAdminSerializer, PortfolioCategoryAdminSerializer,
     TagAdminSerializer, ProjectAdminSerializer, ProjectGalleryImageAdminSerializer,
     BlogPostAdminSerializer, CommentAdminSerializer, ContactMessageAdminSerializer,
+    TeamMemberAdminSerializer, StudentCategoryAdminSerializer, StudentAdminSerializer,
+    SiteStatsAdminSerializer,
 )
 
 
@@ -110,3 +112,27 @@ class ContactMessageAdminViewSet(BaseAdminViewSet):
     queryset = ContactMessage.objects.all()
     serializer_class = ContactMessageAdminSerializer
     http_method_names = ["get", "patch", "delete", "head", "options"]
+
+
+class TeamMemberAdminViewSet(BaseAdminViewSet):
+    queryset = TeamMember.objects.all()
+    serializer_class = TeamMemberAdminSerializer
+
+
+class StudentCategoryAdminViewSet(BaseAdminViewSet):
+    queryset = StudentCategory.objects.all()
+    serializer_class = StudentCategoryAdminSerializer
+
+
+class StudentAdminViewSet(BaseAdminViewSet):
+    queryset = Student.objects.all()
+    serializer_class = StudentAdminSerializer
+
+
+class SiteStatsAdminView(generics.RetrieveUpdateAPIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsStaffUser]
+    serializer_class = SiteStatsAdminSerializer
+
+    def get_object(self):
+        return SiteStats.load()

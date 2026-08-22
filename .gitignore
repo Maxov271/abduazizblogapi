@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.venv/
+.venv_local/
+*.env
+
+# Ma'lumotlar bazasi endi git orqali emas, Coolify'dagi persistent volume
+# (/app/data) orqali saqlanadi — shu bilan foydalanuvchi shaxsiy ma'lumotlari
+# (izohlar, kontakt xabarlari) git tarixiga tushib qolmaydi va deploy'lar
+# davomida ma'lumotlar bazasi qayta yozilib ketmaydi.
+data/

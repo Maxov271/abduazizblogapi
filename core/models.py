@@ -274,11 +274,17 @@ class BlogPost(models.Model):
     is_published = models.BooleanField(default=True)
     published_at = models.DateTimeField()
     created_at = models.DateTimeField(auto_now_add=True)
+    view_count = models.PositiveIntegerField(default=0, help_text="Tabiy (real) ko'rishlar soni — avtomatik oshadi")
+    view_boost = models.PositiveIntegerField(default=0, help_text="Ko'rsatiladigan ko'rishlar sonini sun'iy oshirish uchun qo'shiladigan qiymat")
 
     class Meta:
         ordering = ["-published_at"]
         verbose_name = "Thread posti"
         verbose_name_plural = "Thread postlari"
+
+    @property
+    def display_views(self):
+        return self.view_count + self.view_boost
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -329,3 +335,99 @@ class ContactMessage(models.Model):
 
     def __str__(self):
         return f"{self.name} <{self.email}>"
+
+
+class TeamMember(models.Model):
+    """'Mening Jamoam' (Team) page cards."""
+    ICON_CHOICES = [
+        ("code", "Kod </>"), ("server", "Server"), ("palette", "Dizayn cho'tkasi"),
+        ("rocket", "Raketa"), ("brain", "AI / Miya"), ("layers", "Layers"), ("bolt", "Chaqmoq"),
+    ]
+    name = models.CharField(max_length=100)
+    role = models.CharField(max_length=100, help_text="Masalan: Full Stack Developer")
+    avatar = models.ImageField(upload_to="team/", blank=True, null=True)
+    icon = models.CharField(max_length=30, choices=ICON_CHOICES, default="code")
+    accent_color = models.CharField(max_length=7, default="#7c5cff",
+                                     help_text="Karta ustidagi ikon foni (hex), masalan #7c5cff")
+    skills = models.CharField(max_length=200, blank=True, help_text="Vergul bilan: Python, Django, Vue.js")
+    description = models.TextField(blank=True)
+    github_url = models.URLField(blank=True)
+    linkedin_url = models.URLField(blank=True)
+    telegram_url = models.URLField(blank=True)
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ["order"]
+        verbose_name = "Jamoa a'zosi"
+        verbose_name_plural = "Mening Jamoam"
+
+    def __str__(self):
+        return self.name
+
+
+class StudentCategory(models.Model):
+    """Filter tabs on Students page: Frontend, Backend, Python, Design, Office."""
+    name = models.CharField(max_length=60)
+    slug = models.SlugField(unique=True, blank=True)
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ["order"]
+        verbose_name = "O'quvchi kategoriyasi"
+        verbose_name_plural = "O'quvchi kategoriyalari"
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
+
+class Student(models.Model):
+    """'Mening O'quvchilarim' (Students) page cards."""
+    name = models.CharField(max_length=100)
+    photo = models.ImageField(upload_to="students/", blank=True, null=True)
+    role = models.CharField(max_length=100, help_text="Masalan: Frontend Student")
+    category = models.ForeignKey(StudentCategory, related_name="students", on_delete=models.PROTECT)
+    skills = models.CharField(max_length=200, blank=True, help_text="Vergul bilan: HTML, CSS, JavaScript")
+    start_date = models.DateField(blank=True, null=True)
+    end_date = models.DateField(blank=True, null=True)
+    project_count = models.PositiveIntegerField(default=0)
+    portfolio_url = models.URLField(blank=True)
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ["order"]
+        verbose_name = "O'quvchi"
+        verbose_name_plural = "Mening O'quvchilarim"
+
+    def __str__(self):
+        return self.name
+
+
+class SiteStats(models.Model):
+    """Singleton: sayt bo'yicha ochiq statistika (tashriflar, izohlar, so'rovlar soni)."""
+    total_visits = models.PositiveIntegerField(default=0, help_text="Tabiy (real) sayt tashriflari — avtomatik oshadi")
+    visits_boost = models.PositiveIntegerField(default=0, help_text="Ko'rsatiladigan raqamni sun'iy oshirish uchun qo'shiladigan qiymat")
+
+    class Meta:
+        verbose_name = "Sayt statistikasi"
+        verbose_name_plural = "Sayt statistikasi"
+
+    def __str__(self):
+        return "Sayt statistikasi"
+
+    def save(self, *args, **kwargs):
+        self.pk = 1
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def load(cls):
+        obj, _ = cls.objects.get_or_create(pk=1)
+        return obj
+
+    @property
+    def display_visits(self):
+        return self.total_visits + self.visits_boost

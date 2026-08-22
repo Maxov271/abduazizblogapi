@@ -1,3 +1,4 @@
+from django.db.models import F
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, status
 from rest_framework.decorators import api_view
@@ -6,13 +7,15 @@ from rest_framework.response import Response
 from .models import (
     SiteSettings, Profile, SocialLink, Service, InsideWorldCard,
     SkillGroup, JourneyEntry, PortfolioCategory, Project, BlogPost,
+    TeamMember, StudentCategory, Student, SiteStats, Comment, ContactMessage,
 )
 from .serializers import (
     SiteSettingsSerializer, ProfileSerializer, SocialLinkSerializer, ServiceSerializer,
     InsideWorldCardSerializer, SkillGroupSerializer, JourneyEntrySerializer,
     PortfolioCategorySerializer, ProjectListSerializer, ProjectDetailSerializer,
     BlogPostListSerializer, BlogPostDetailSerializer, CommentSerializer,
-    CommentCreateSerializer, ContactMessageSerializer,
+    CommentCreateSerializer, ContactMessageSerializer, TeamMemberSerializer,
+    StudentCategorySerializer, StudentSerializer, SiteStatsSerializer,
 )
 from .telegram import notify_new_comment, notify_new_contact_message
 
@@ -83,6 +86,57 @@ class BlogPostDetailView(generics.RetrieveAPIView):
     queryset = BlogPost.objects.filter(is_published=True)
     serializer_class = BlogPostDetailSerializer
     lookup_field = "slug"
+
+    def get_object(self):
+        obj = super().get_object()
+        BlogPost.objects.filter(pk=obj.pk).update(view_count=F("view_count") + 1)
+        obj.refresh_from_db(fields=["view_count"])
+        return obj
+
+
+class TeamMemberListView(generics.ListAPIView):
+    queryset = TeamMember.objects.all()
+    serializer_class = TeamMemberSerializer
+
+
+class StudentCategoryListView(generics.ListAPIView):
+    queryset = StudentCategory.objects.all()
+    serializer_class = StudentCategorySerializer
+
+
+class StudentListView(generics.ListAPIView):
+    serializer_class = StudentSerializer
+
+    def get_queryset(self):
+        qs = Student.objects.select_related("category").all()
+        category = self.request.query_params.get("category")
+        if category and category != "all":
+            qs = qs.filter(category__slug=category)
+        return qs
+
+
+@api_view(["GET"])
+def site_stats_view(request):
+    stats = SiteStats.load()
+    data = {
+        "visits": stats.display_visits,
+        "contact_messages": ContactMessage.objects.count(),
+        "comments": Comment.objects.filter(status="approved").count(),
+    }
+    return Response(SiteStatsSerializer(data).data)
+
+
+@api_view(["POST"])
+def track_visit_view(request):
+    SiteStats.load()
+    SiteStats.objects.filter(pk=1).update(total_visits=F("total_visits") + 1)
+    stats = SiteStats.load()
+    data = {
+        "visits": stats.display_visits,
+        "contact_messages": ContactMessage.objects.count(),
+        "comments": Comment.objects.filter(status="approved").count(),
+    }
+    return Response(SiteStatsSerializer(data).data)
 
 
 @api_view(["GET"])

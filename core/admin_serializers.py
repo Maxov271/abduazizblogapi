@@ -2,7 +2,7 @@ from rest_framework import serializers
 from .models import (
     SiteSettings, Profile, SocialLink, Service, InsideWorldCard, InsideWorldItem,
     SkillGroup, JourneyEntry, PortfolioCategory, Project, ProjectGalleryImage, Tag,
-    BlogPost, Comment, ContactMessage,
+    BlogPost, Comment, ContactMessage, TeamMember, StudentCategory, Student, SiteStats,
 )
 
 
@@ -85,7 +85,33 @@ class BlogPostAdminSerializer(serializers.ModelSerializer):
     class Meta:
         model = BlogPost
         fields = "__all__"
-        read_only_fields = ["slug", "created_at"]
+        read_only_fields = ["slug", "created_at", "view_count"]
+
+
+class TeamMemberAdminSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TeamMember
+        fields = "__all__"
+
+
+class StudentCategoryAdminSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StudentCategory
+        fields = "__all__"
+        read_only_fields = ["slug"]
+
+
+class StudentAdminSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Student
+        fields = "__all__"
+
+
+class SiteStatsAdminSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SiteStats
+        fields = "__all__"
+        read_only_fields = ["total_visits"]
 
 
 class CommentAdminSerializer(serializers.ModelSerializer):

@@ -16,9 +16,13 @@ router.register("portfolio-gallery", v.ProjectGalleryImageAdminViewSet, basename
 router.register("thread", v.BlogPostAdminViewSet, basename="admin-thread")
 router.register("comments", v.CommentAdminViewSet, basename="admin-comments")
 router.register("contact-messages", v.ContactMessageAdminViewSet, basename="admin-contact-messages")
+router.register("team", v.TeamMemberAdminViewSet, basename="admin-team")
+router.register("student-categories", v.StudentCategoryAdminViewSet, basename="admin-student-categories")
+router.register("students", v.StudentAdminViewSet, basename="admin-students")
 
 urlpatterns = [
     path("site-settings/", v.SiteSettingsAdminView.as_view(), name="admin_site_settings"),
     path("profile/", v.ProfileAdminView.as_view(), name="admin_profile"),
+    path("stats/", v.SiteStatsAdminView.as_view(), name="admin_stats"),
     path("", include(router.urls)),
 ]

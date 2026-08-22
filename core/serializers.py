@@ -2,7 +2,7 @@ from rest_framework import serializers
 from .models import (
     SiteSettings, Profile, SocialLink, Service, InsideWorldCard, InsideWorldItem,
     SkillGroup, JourneyEntry, PortfolioCategory, Project, ProjectGalleryImage, Tag,
-    BlogPost, Comment, ContactMessage,
+    BlogPost, Comment, ContactMessage, TeamMember, StudentCategory, Student, SiteStats,
 )
 
 
@@ -109,21 +109,62 @@ class ProjectDetailSerializer(serializers.ModelSerializer):
 class BlogPostListSerializer(serializers.ModelSerializer):
     cover_image = serializers.ImageField(use_url=True, required=False)
     tags = TagSerializer(many=True, read_only=True)
+    views = serializers.IntegerField(source="display_views", read_only=True)
+    comment_count = serializers.SerializerMethodField()
 
     class Meta:
         model = BlogPost
         fields = ["id", "title", "slug", "cover_image", "excerpt", "read_minutes",
-                  "tags", "published_at"]
+                  "tags", "published_at", "views", "comment_count"]
+
+    def get_comment_count(self, obj):
+        return obj.comments.filter(status="approved").count()
 
 
 class BlogPostDetailSerializer(serializers.ModelSerializer):
     cover_image = serializers.ImageField(use_url=True, required=False)
     tags = TagSerializer(many=True, read_only=True)
+    views = serializers.IntegerField(source="display_views", read_only=True)
+    comment_count = serializers.SerializerMethodField()
 
     class Meta:
         model = BlogPost
         fields = ["id", "title", "slug", "cover_image", "excerpt", "body", "read_minutes",
-                  "tags", "published_at"]
+                  "tags", "published_at", "views", "comment_count"]
+
+    def get_comment_count(self, obj):
+        return obj.comments.filter(status="approved").count()
+
+
+class TeamMemberSerializer(serializers.ModelSerializer):
+    avatar = serializers.ImageField(use_url=True, required=False)
+
+    class Meta:
+        model = TeamMember
+        fields = ["id", "name", "role", "avatar", "icon", "accent_color", "skills",
+                  "description", "github_url", "linkedin_url", "telegram_url", "order"]
+
+
+class StudentCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StudentCategory
+        fields = ["id", "name", "slug", "order"]
+
+
+class StudentSerializer(serializers.ModelSerializer):
+    photo = serializers.ImageField(use_url=True, required=False)
+    category = StudentCategorySerializer(read_only=True)
+
+    class Meta:
+        model = Student
+        fields = ["id", "name", "photo", "role", "category", "skills", "start_date",
+                  "end_date", "project_count", "portfolio_url", "order"]
+
+
+class SiteStatsSerializer(serializers.Serializer):
+    visits = serializers.IntegerField()
+    contact_messages = serializers.IntegerField()
+    comments = serializers.IntegerField()
 
 
 class CommentSerializer(serializers.ModelSerializer):

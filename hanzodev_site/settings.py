@@ -58,7 +58,9 @@ WSGI_APPLICATION = "hanzodev_site.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        # data/ katalogi alohida — Coolify'da shu katalogga persistent volume ulanadi,
+        # shunda deploy'lar orasida ma'lumotlar bazasi saqlanib qoladi.
+        "NAME": BASE_DIR / "data" / "db.sqlite3",
     }
 }
 
