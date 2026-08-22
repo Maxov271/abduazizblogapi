@@ -17,6 +17,8 @@ class SiteSettings(models.Model):
     telegram_bot_token = models.CharField(max_length=200, blank=True,
                                            help_text="Ixtiyoriy: .env o'rniga shu yerdan ham sozlash mumkin")
     telegram_chat_id = models.CharField(max_length=100, blank=True)
+    cube_rotation_seconds = models.PositiveIntegerField(
+        default=40, help_text="About Me sahifasidagi 3D skill kubning bir to'liq (360°) aylanish vaqti, soniyada")
 
     class Meta:
         verbose_name = "Site sozlamalari"

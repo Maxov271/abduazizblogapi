@@ -13,7 +13,7 @@ class SiteSettingsSerializer(serializers.ModelSerializer):
     class Meta:
         model = SiteSettings
         fields = ["site_name", "favicon", "meta_description", "meta_keywords",
-                  "background_image", "accent_color"]
+                  "background_image", "accent_color", "cube_rotation_seconds"]
 
 
 class ProfileSerializer(serializers.ModelSerializer):
