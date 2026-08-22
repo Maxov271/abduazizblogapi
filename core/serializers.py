@@ -142,7 +142,7 @@ class TeamMemberSerializer(serializers.ModelSerializer):
     class Meta:
         model = TeamMember
         fields = ["id", "name", "role", "avatar", "icon", "accent_color", "skills",
-                  "description", "github_url", "linkedin_url", "telegram_url", "order"]
+                  "description", "github_url", "linkedin_url", "telegram_url", "portfolio_url", "order"]
 
 
 class StudentCategorySerializer(serializers.ModelSerializer):

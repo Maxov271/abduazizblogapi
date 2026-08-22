@@ -354,6 +354,7 @@ class TeamMember(models.Model):
     github_url = models.URLField(blank=True)
     linkedin_url = models.URLField(blank=True)
     telegram_url = models.URLField(blank=True)
+    portfolio_url = models.URLField(blank=True, help_text="Shaxsiy portfolio yoki loyiha havolasi")
     order = models.PositiveIntegerField(default=0)
 
     class Meta:
